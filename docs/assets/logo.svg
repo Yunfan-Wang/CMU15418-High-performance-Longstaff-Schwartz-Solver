@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+<title>LSM Solver</title><rect x="2" y="2" width="92" height="92" rx="22" fill="#102638"/>
+<path d="M19 72V25M19 72H79" fill="none" stroke="#67899c" stroke-width="3" stroke-linecap="round"/>
+<path d="M23 62L34 47L47 53L60 29L76 21M23 62L34 59L47 38L60 44L76 31M23 62L34 66L47 58L60 62L76 48" fill="none" stroke="#44b8bc" stroke-width="3" stroke-linejoin="round" opacity=".8"/>
+<circle cx="60" cy="29" r="5" fill="#e6b970"/><circle cx="47" cy="38" r="5" fill="#e6b970"/>
+</svg>

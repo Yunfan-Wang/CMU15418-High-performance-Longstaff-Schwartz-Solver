@@ -1,0 +1,38 @@
+{
+  "format": 1,
+  "source_files": {
+    "CMakeLists.txt": "24e94f0449b1881e7b0a4241c42754849953c66047d7faa31e94793d926599b1",
+    "app/main.cpp": "06604dbe16866847f72d598d38ae2ffe62e87d225d81dda468a2717580d082dc",
+    "app/options.hpp": "25c0120d0edc203be38318d3c400f292b05b65e2d747080961b667f822831e02",
+    "default/src/lsm.hpp": "4a0195953137d00d089e87b3cebb1df9cf9283767a788e272f836b60632e80da",
+    "gpu/lsm.cu": "3cff198c19d71229552ec6874fb22512481e9319a8e6e76d401f0de2414dd039",
+    "gpu/lsm.hpp": "8ba99e58ebbc2a38257f979c203cbcaeb7e1b9a8a4b848fa09f805f396d87b7e"
+  },
+  "bundles": [
+    {
+      "file": "lsm-windows-x64.zip",
+      "bytes": 362124,
+      "sha256": "f8eb20e2550c8c0b575864bb3a8039a8e24f95c9c9bc98afdc52d63c79e80199",
+      "binaries": {
+        "lsm_cpu.exe": "5988b15002eaa1bef7dd01ad040bc4ff538f28d8f5c1fdf66fa308712e59fcf6"
+      }
+    },
+    {
+      "file": "lsm-linux-x64-cuda86.zip",
+      "bytes": 804508,
+      "sha256": "762597547d529a7dc4c954ecff4c9ea00bc66f31c1e3ad53fa7428ca81d1777d",
+      "binaries": {
+        "lsm_cpu": "5b1b5c2e91405c0a9da6ca1d750fa1b45e502bbd2513f636d65ec8ed7813158f",
+        "lsm_cuda": "baeb44e5f8f10cf87111bb8f158007f078f451ef0b7f1524b6ae82a2dea30c81"
+      }
+    },
+    {
+      "file": "lsm-results-explorer.zip",
+      "bytes": 4870,
+      "sha256": "6ec09dba19a700b648979560b2ea1c621a9101673770c731ef11c5ac30fb3c6f",
+      "binaries": {}
+    }
+  ],
+  "windows_build": "MinGW-w64 GCC 12.2.0; -O3 -std=c++17 -static -s",
+  "linux_build": "Ubuntu 24.04; GCC 13.3.0; CUDA 12.6.85; CMake Release; architecture 86"
+}

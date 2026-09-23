@@ -1,0 +1,34 @@
+name: Build and verify
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  cpu:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build --config Release --parallel
+      - run: ctest --test-dir build -C Release --output-on-failure
+      - if: runner.os == 'Linux'
+        run: python scripts/verify.py --cpu build/lsm_cpu
+      - if: runner.os == 'Windows'
+        run: python scripts/verify.py --cpu build/Release/lsm_cpu.exe
+      - run: cmake --install build --config Release --prefix dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lsm-${{ runner.os }}-cpu
+          path: dist/
+  cuda-compile:
+    runs-on: ubuntu-latest
+    container: nvidia/cuda:12.6.3-devel-ubuntu24.04
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git cmake g++
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DLSM_ENABLE_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=86
+      - run: cmake --build build --parallel
+      # Hosted runners have no CUDA device: compile here; run GPU tests on actual hardware.

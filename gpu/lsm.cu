@@ -272,7 +272,7 @@ void init_terminal_payoff_kernel(double*       __restrict__ d_cashflow,
 
 
 
-static void solve_small_linear(double* A, double* b, int n)
+static bool solve_small_linear(double* A, double* b, int n)
 {
     for (int i = 0; i < n; ++i) {
         // pivot
@@ -282,7 +282,7 @@ static void solve_small_linear(double* A, double* b, int n)
             double v = std::fabs(A[r*n + i]);
             if (v > maxv) { maxv = v; piv = r; }
         }
-        if (maxv < 1e-14) return; // singular-ish
+        if (maxv < 1e-14 || !std::isfinite(maxv)) return false;
 
         if (piv != i) {
             for (int c = 0; c < n; ++c) std::swap(A[i*n + c], A[piv*n + c]);
@@ -304,9 +304,11 @@ static void solve_small_linear(double* A, double* b, int n)
         double sum = b[i];
         for (int c = i+1; c < n; ++c) sum -= A[i*n + c] * b[c];
         double diag = A[i*n + i];
-        if (std::fabs(diag) < 1e-14) continue;
+        if (std::fabs(diag) < 1e-14 || !std::isfinite(diag)) return false;
         b[i] = sum / diag;
+        if (!std::isfinite(b[i])) return false;
     }
+    return true;
 }
 
 
@@ -318,6 +320,8 @@ double price_american_lsm_gpu(const ModelParams& model,
 {
     const std::size_t N = cfg.num_paths;
     const std::size_t M = cfg.num_steps;
+    if (N == 0 || M == 0 || cfg.poly_degree >= MAX_KDIM)
+        throw std::invalid_argument("CUDA solver requires positive paths/steps and degree <= 7");
     const int deg   = (int)cfg.poly_degree;
     const int Kdim  = deg + 1;
 
@@ -400,7 +404,7 @@ double price_american_lsm_gpu(const ModelParams& model,
         cudaCheckError(cudaMemcpy(h_A.data(), d_A, ABytes, cudaMemcpyDeviceToHost));
         cudaCheckError(cudaMemcpy(h_b.data(), d_b, bBytes, cudaMemcpyDeviceToHost));
 
-        solve_small_linear(h_A.data(), h_b.data(), Kdim);
+        if (!solve_small_linear(h_A.data(), h_b.data(), Kdim)) continue;
         // h_b now holds β
 
         cudaCheckError(cudaMemcpy(d_beta, h_b.data(), bBytes, cudaMemcpyHostToDevice));
@@ -425,7 +429,8 @@ double price_american_lsm_gpu(const ModelParams& model,
 
     double h_sum = 0.0;
     cudaCheckError(cudaMemcpy(&h_sum, d_sum, sizeof(double), cudaMemcpyDeviceToHost));
-    double price = h_sum / (double)N;
+    double immediate = fmax(opt.is_call ? model.S0-opt.K : opt.K-model.S0, 0.0);
+    double price = fmax(immediate, h_sum / (double)N);
 
     cudaCheckError(cudaEventRecord(ev_end));
     cudaCheckError(cudaEventSynchronize(ev_end));

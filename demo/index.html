@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LSM Solver · Results Explorer</title>
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#152b3e;background:#f3f6f8;color-scheme:light}
+*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:42px 24px}
+header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccd7df;padding-bottom:24px}
+.brand{font-weight:750;letter-spacing:-.6px;font-size:24px}.badge{font-size:12px;color:#35747d;background:#e1eff0;padding:8px 12px;border-radius:20px}
+.eyebrow{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#53717f;margin-top:38px}
+h1{font-size:clamp(30px,5vw,52px);letter-spacing:-2px;line-height:1.06;margin:14px 0}
+.intro{font-size:17px;max-width:720px;color:#526b7b;line-height:1.65}
+.controls{display:flex;gap:18px;flex-wrap:wrap;margin:28px 0}label{font-size:12px;font-weight:650;display:grid;gap:8px}
+select{font:inherit;font-size:14px;min-width:180px;padding:12px;border-radius:8px;border:1px solid #bfcdd6;background:white;color:#152b3e}
+.grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}.card{background:#fff;border:1px solid #dbe3e8;border-radius:16px;padding:26px}
+h2{font-size:17px;margin:0 0 24px}.barrow{margin:26px 0}.barlabel{display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px}
+.track{height:26px;background:#eff3f6;border-radius:5px;overflow:hidden}.bar{height:100%;background:#9aabbc;transition:width .2s;min-width:2px}.gpu{background:#147d92}
+.big{font-size:56px;font-weight:750;letter-spacing:-3px;margin:10px 0;color:#147d92}.small{font-size:12px;line-height:1.7;color:#5b7180}
+table{border-collapse:collapse;width:100%;font-size:14px}td{padding:12px 0;border-top:1px solid #e4eaee}td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+pre{background:#102638;color:#ccebee;padding:20px;border-radius:10px;overflow:auto;font-size:13px;line-height:1.7}
+.foot{margin-top:22px;font-size:12px;line-height:1.8;color:#5b7180}
+@media(max-width:700px){.grid{grid-template-columns:1fr}main{padding:24px 18px}.badge{max-width:130px;text-align:center}.card{padding:20px}}
+</style>
+</head>
+<body><main>
+<header><span class="brand">◈ LSM Solver</span><span class="badge">Offline results explorer</span></header>
+<p class="eyebrow">Parallel numerical computing</p><h1>Many paths.<br>One exercise decision.</h1>
+<p class="intro">Explore recorded CPU and CUDA results for American option pricing. Switch workloads to see the latency and price estimates. Every number below comes from a checked-in measurement.</p>
+<div class="controls">
+<label>Experiment<select id="dataset"><option value="local">Local RTX 3070 Ti · solver wall time</option><option value="historical">Historical · pipeline timing</option></select></label>
+<label>Monte Carlo paths<select id="paths"></select></label>
+<label>Contract<select id="contract"></select></label>
+</div>
+<div class="grid">
+<section class="card"><h2>Time to solve</h2>
+<div class="barrow"><div class="barlabel"><span>CPU</span><strong id="cpuTime"></strong></div><div class="track"><div class="bar" id="cpuBar"></div></div></div>
+<div class="barrow"><div class="barlabel"><span>CUDA</span><strong id="gpuTime"></strong></div><div class="track"><div class="bar gpu" id="gpuBar"></div></div></div>
+<p class="small" id="scope"></p></section>
+<section class="card" aria-live="polite"><h2>Observed speedup</h2><div class="big" id="speedup"></div>
+<table><tr><td>CPU price estimate</td><td id="cpuPrice"></td></tr><tr><td>CUDA price estimate</td><td id="gpuPrice"></td></tr><tr><td>Absolute difference</td><td id="difference"></td></tr></table></section>
+</div>
+<h2 style="margin-top:32px">Run this workload yourself</h2><pre id="command"></pre>
+<p class="foot">This explorer displays recorded measurements; it does not execute CUDA in your browser or calculate a live quote. CPU and GPU use different random-number generators. Price differences combine sampling variability and implementation effects. Historical and local timings have different boundaries and should not be pooled.</p>
+</main>
+<script id="benchmark-data" type="application/json">{"local": [{"paths": 25000, "spot": 100, "strike": 100, "type": "put", "cpu_ms": 65.593574, "gpu_ms": 16.260943, "cpu_price": 5.91444528553, "gpu_price": 6.08475178461}, {"paths": 50000, "spot": 100, "strike": 100, "type": "put", "cpu_ms": 135.482974, "gpu_ms": 22.660518, "cpu_price": 6.04052551636, "gpu_price": 6.07303994683}, {"paths": 200000, "spot": 100, "strike": 100, "type": "put", "cpu_ms": 745.134058, "gpu_ms": 53.557728, "cpu_price": 6.04871594446, "gpu_price": 6.07548463837}], "historical": [{"paths": 50000, "spot": 100.0, "strike": 100.0, "type": "call", "cpu_ms": 890.554, "gpu_ms": 15.8928, "cpu_price": 10.3994, "gpu_price": 10.3354}, {"paths": 50000, "spot": 100.0, "strike": 100.0, "type": "put", "cpu_ms": 824.317, "gpu_ms": 14.2332, "cpu_price": 6.04053, "gpu_price": 6.07304}, {"paths": 50000, "spot": 100.0, "strike": 90.0, "type": "call", "cpu_ms": 1116.58, "gpu_ms": 21.619, "cpu_price": 16.6333, "gpu_price": 16.6376}, {"paths": 50000, "spot": 100.0, "strike": 90.0, "type": "put", "cpu_ms": 575.129, "gpu_ms": 8.54192, "cpu_price": 2.46944, "gpu_price": 2.48318}, {"paths": 50000, "spot": 90.0, "strike": 100.0, "type": "call", "cpu_ms": 625.81, "gpu_ms": 9.62454, "cpu_price": 5.04481, "gpu_price": 4.98537}, {"paths": 50000, "spot": 90.0, "strike": 100.0, "type": "put", "cpu_ms": 1075.95, "gpu_ms": 20.6208, "cpu_price": 11.431, "gpu_price": 11.4203}, {"paths": 200000, "spot": 100.0, "strike": 100.0, "type": "call", "cpu_ms": 4142.43, "gpu_ms": 43.9103, "cpu_price": 10.453, "gpu_price": 10.4435}, {"paths": 200000, "spot": 100.0, "strike": 100.0, "type": "put", "cpu_ms": 3725.78, "gpu_ms": 40.5699, "cpu_price": 6.04872, "gpu_price": 6.07548}, {"paths": 200000, "spot": 100.0, "strike": 90.0, "type": "call", "cpu_ms": 5324.36, "gpu_ms": 57.5073, "cpu_price": 16.698, "gpu_price": 16.6904}, {"paths": 200000, "spot": 100.0, "strike": 90.0, "type": "put", "cpu_ms": 2413.7, "gpu_ms": 25.7728, "cpu_price": 2.46347, "gpu_price": 2.47728}, {"paths": 200000, "spot": 90.0, "strike": 100.0, "type": "call", "cpu_ms": 2631.97, "gpu_ms": 28.5714, "cpu_price": 5.09296, "gpu_price": 5.08499}, {"paths": 200000, "spot": 90.0, "strike": 100.0, "type": "put", "cpu_ms": 5160.85, "gpu_ms": 55.4266, "cpu_price": 11.4443, "gpu_price": 11.4499}, {"paths": 500000, "spot": 100.0, "strike": 100.0, "type": "call", "cpu_ms": 10531.7, "gpu_ms": 100.692, "cpu_price": 10.44, "gpu_price": 10.4582}, {"paths": 500000, "spot": 100.0, "strike": 100.0, "type": "put", "cpu_ms": 9688.12, "gpu_ms": 92.9941, "cpu_price": 6.05652, "gpu_price": 6.06449}, {"paths": 500000, "spot": 100.0, "strike": 90.0, "type": "call", "cpu_ms": 13554.7, "gpu_ms": 130.474, "cpu_price": 16.6891, "gpu_price": 16.7043}, {"paths": 500000, "spot": 100.0, "strike": 90.0, "type": "put", "cpu_ms": 6425.62, "gpu_ms": 59.4451, "cpu_price": 2.46196, "gpu_price": 2.47282}, {"paths": 500000, "spot": 90.0, "strike": 100.0, "type": "call", "cpu_ms": 7025.93, "gpu_ms": 65.5208, "cpu_price": 5.07199, "gpu_price": 5.09945}, {"paths": 500000, "spot": 90.0, "strike": 100.0, "type": "put", "cpu_ms": 13119.4, "gpu_ms": 125.775, "cpu_price": 11.4454, "gpu_price": 11.4379}, {"paths": 1000000, "spot": 100.0, "strike": 100.0, "type": "call", "cpu_ms": 21234.6, "gpu_ms": 194.221, "cpu_price": 10.4466, "gpu_price": 10.4619}, {"paths": 1000000, "spot": 100.0, "strike": 100.0, "type": "put", "cpu_ms": 19526.2, "gpu_ms": 179.262, "cpu_price": 6.05778, "gpu_price": 6.05491}, {"paths": 1000000, "spot": 100.0, "strike": 90.0, "type": "call", "cpu_ms": 27583.2, "gpu_ms": 251.747, "cpu_price": 16.6911, "gpu_price": 16.7107}, {"paths": 1000000, "spot": 100.0, "strike": 90.0, "type": "put", "cpu_ms": 12983.8, "gpu_ms": 114.386, "cpu_price": 2.45913, "gpu_price": 2.46509}, {"paths": 1000000, "spot": 90.0, "strike": 100.0, "type": "call", "cpu_ms": 14303.9, "gpu_ms": 127.402, "cpu_price": 5.08099, "gpu_price": 5.09898}, {"paths": 1000000, "spot": 90.0, "strike": 100.0, "type": "put", "cpu_ms": 26311.3, "gpu_ms": 242.908, "cpu_price": 11.4411, "gpu_price": 11.4322}]}</script>
+<script>
+const datasets=JSON.parse(document.getElementById('benchmark-data').textContent);
+const el=id=>document.getElementById(id);
+function options(select,items){select.replaceChildren(...items.map(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;return option}));}
+function setDataset(){const rows=datasets[el('dataset').value];options(el('paths'),[...new Set(rows.map(r=>r.paths))].sort((a,b)=>a-b).map(n=>[n,n.toLocaleString()]));setPaths();}
+function setPaths(){const rows=datasets[el('dataset').value].filter(r=>r.paths===Number(el('paths').value));options(el('contract'),rows.map((r,i)=>[i,r.type.toUpperCase()+' · spot '+r.spot+' / strike '+r.strike]));render();}
+function render(){const local=el('dataset').value==='local';const rows=datasets[el('dataset').value].filter(r=>r.paths===Number(el('paths').value));const r=rows[Number(el('contract').value)];const max=Math.max(r.cpu_ms,r.gpu_ms);
+el('cpuTime').textContent=r.cpu_ms.toFixed(2)+' ms';el('gpuTime').textContent=r.gpu_ms.toFixed(2)+' ms';
+el('cpuBar').style.width=(r.cpu_ms/max*100)+'%';el('gpuBar').style.width=(r.gpu_ms/max*100)+'%';
+el('speedup').textContent=(r.cpu_ms/r.gpu_ms).toFixed(1)+'×';
+el('cpuPrice').textContent=r.cpu_price.toFixed(5);el('gpuPrice').textContent=r.gpu_price.toFixed(5);el('difference').textContent=Math.abs(r.cpu_price-r.gpu_price).toFixed(5);
+el('scope').textContent=local?'Median of 3 calls after 1 warmup. WSL2, RTX 3070 Ti Laptop GPU, 50 steps. Includes solver allocation/free; excludes process startup and device discovery.':'Original CSV records, 50 steps, one timing per contract. GPU timer excludes allocation and setup. Hardware/compiler provenance is incomplete.';
+el('command').textContent='./lsm_cpu --'+r.type+' --S0 '+r.spot+' --K '+r.strike+' --paths '+r.paths+' --steps 50 --warmup 1 --repeat 3 --json\n./lsm_cuda --'+r.type+' --S0 '+r.spot+' --K '+r.strike+' --paths '+r.paths+' --steps 50 --warmup 1 --repeat 3 --json';}
+el('dataset').addEventListener('change',setDataset);el('paths').addEventListener('change',setPaths);el('contract').addEventListener('change',render);setDataset();
+</script></body></html>

@@ -1,0 +1,8 @@
+/build*/
+/.venv/
+/dist/
+*.exe
+*.o
+__pycache__/
+*.pyc
+/benchmarks/local*.json

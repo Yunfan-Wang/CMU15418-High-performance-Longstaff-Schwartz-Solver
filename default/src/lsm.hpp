@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 #include <random>
 #include <cmath>
 #include <cstddef>
@@ -167,7 +168,6 @@ inline double price_american_lsm(const ModelParams& model,
     std::size_t N = cfg.num_paths;
     std::size_t M = cfg.num_steps;
     double dt = opt.T / static_cast<double>(M);
-    double disc = std::exp(-model.r * dt);
 
     // S1. Simulate all paths
     auto paths = simulate_paths(model, opt, cfg);
@@ -281,7 +281,7 @@ inline double price_american_lsm(const ModelParams& model,
         sum += cashflow[i] * std::exp(-model.r * t);
     }
 
-    return sum / static_cast<double>(N);
+    return std::max(payoff(opt, model.S0), sum / static_cast<double>(N));
 }
 
 } // namespace lsm
